@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MemorizAR - Biodiversidad Austral</title>
 
-  <!-- Librerías estables -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
@@ -13,7 +12,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body, html { width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
 
-    /* Pantalla de inicio con botón para activar cámara sin bloqueos */
     #start-screen {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -41,7 +39,6 @@
       box-shadow: 0 4px 15px rgba(0, 119, 182, 0.4);
     }
 
-    /* Tarjeta flotante de información cuando detecta la especie */
     #info-card {
       position: fixed;
       bottom: 20px;
@@ -61,7 +58,6 @@
     #info-card em { color: #90e0ef; font-size: 0.85rem; display: block; margin-bottom: 8px; }
     #info-card p { font-size: 0.9rem; line-height: 1.4; color: #e0e1dd; }
 
-    /* Mensaje de estado en pantalla */
     #status-msg {
       position: fixed;
       top: 15px;
@@ -79,7 +75,6 @@
 </head>
 <body>
 
-  <!-- Pantalla para forzar el permiso de cámara -->
   <div id="start-screen">
     <h1>MemorizAR Austral</h1>
     <p>Descubre la biodiversidad de Magallanes con Realidad Aumentada.<br>Apunta tu cámara a la tarjeta de la especie.</p>
@@ -88,14 +83,12 @@
 
   <div id="status-msg">Cargando sistema...</div>
 
-  <!-- Ficha informativa de la Ballena -->
   <div id="info-card">
     <h2>Ballena Franca Austral</h2>
     <em>Eubalaena australis</em>
-    <p>Cetáceo emblemático de las aguas subantárticas y fiordos australes. Su presencia y actividad nutren las cadenas tróficas marinas de Magallanes.</p>
+    <p>Cetáceo emblemático de las aguas subantárticas y fiordos australes. Su presencia y actividad biológica nutren las cadenas tróficas marinas de Magallanes.</p>
   </div>
 
-  <!-- Escena MindAR -->
   <a-scene 
     mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: no; uiError: yes;"
     color-space="sRGB"
@@ -109,14 +102,15 @@
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Target 0 = primera imagen compilada en targets.mind -->
+    <!-- Target 0 con el modelo oculto por defecto -->
     <a-entity id="tarjeta-ballena" mindar-image-target="targetIndex: 0">
-      <!-- Modelo 3D: posición Z levantada ligeramente sobre la carta, rotación adaptada -->
       <a-gltf-model 
+        id="modelo-3d"
         src="#ballenaModel" 
-        position="0 0 0.1" 
-        scale="0.08 0.08 0.08" 
-        rotation="90 0 0">
+        position="0 0 0.05" 
+        scale="0.005 0.005 0.005" 
+        rotation="90 0 0"
+        visible="false">
       </a-gltf-model>
     </a-entity>
   </a-scene>
@@ -128,12 +122,12 @@
     const infoCard = document.getElementById('info-card');
     const sceneEl = document.querySelector('a-scene');
     const tarjeta = document.getElementById('tarjeta-ballena');
+    const modelo3D = document.getElementById('modelo-3d');
 
     startBtn.addEventListener('click', () => {
       startScreen.style.display = 'none';
       statusMsg.innerText = "Iniciando cámara...";
       
-      // Iniciar el sistema MindAR tras la pulsación táctil
       const arSystem = sceneEl.systems["mindar-image-system"];
       arSystem.start().then(() => {
         statusMsg.innerText = "Apunta a la tarjeta de la Ballena";
@@ -143,15 +137,16 @@
       });
     });
 
-    // Eventos cuando encuentra o pierde la carta
     tarjeta.addEventListener("targetFound", () => {
       statusMsg.innerText = "¡Especie detectada!";
       infoCard.style.display = "block";
+      modelo3D.setAttribute("visible", "true");
     });
 
     tarjeta.addEventListener("targetLost", () => {
       statusMsg.innerText = "Apunta a la tarjeta de la Ballena";
       infoCard.style.display = "none";
+      modelo3D.setAttribute("visible", "false");
     });
   </script>
 </body>
